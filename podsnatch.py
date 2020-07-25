@@ -11,13 +11,15 @@ import sys
 import re
 import os
 
+from pathvalidate import sanitize_filename
+
 TMP_EXT = '.part'
 
 
 class Show:
 
   def __init__(self, outline_element):
-    self.title = outline_element.get('title')
+    self.title = outline_element.get('text')
     self.url = (outline_element.get('xmlUrl') or
                 outline_element.get('xmlurl') or
                 None)
@@ -55,6 +57,8 @@ class Episode:
 {self.description}"""
 
   def get_file_name(self):
+    return sanitize_filename(self.title) + '.' + self.url.split('.')[-1].split('?')[0]
+    # preserving old code below
     url_tail = self.url.split('/')[-1].split('?')[0]
     show_title = re.sub(r'[\W]+', '_', self.show.title)
     ep_title = re.sub(r'[\W]+', '_', self.title)
@@ -94,7 +98,7 @@ total_downloaded = 0
 full_path = ''
 
 
-def save_podcasts(opml, output, episode_count=None):
+def save_podcasts(opml, output, episode_count=None, episode_meta=False):
   global total_downloaded
   global full_path
 
@@ -128,14 +132,16 @@ def save_podcasts(opml, output, episode_count=None):
 
         os.rename(full_path + TMP_EXT, full_path)
 
-        handle = open(full_path + ".txt", "w")
-        handle.write(str(episode))
-        handle.close()
+        if episode_meta:
+          handle = open(full_path + ".txt", "w")
+          handle.write(str(episode))
+          handle.close()
 
         show_downloaded += 1
         total_downloaded += 1
       else:
         print('Episode already downloaded!')
+        show_downloaded += 1
 
       i += 1
 
@@ -162,9 +168,12 @@ if __name__ == '__main__':
                       help='location to save podcasts')
   parser.add_argument('--number-of-episodes', '-n', dest='ep_cnt',
                       action='store', default=None,
-                      help='path to opml file to import')
+                      help='Download at most the last n episodes in the feed')
+  parser.add_argument('--output-metadata','-m', dest="metadata",type=bool,
+                      required=False, default=False, 
+                      help="Output .txt metadata file for each episode")
   args = parser.parse_args()
 
   signal.signal(signal.SIGINT, ctrl_c_handler)
 
-  save_podcasts(args.opml_loc, args.output_loc, args.ep_cnt)
+  save_podcasts(args.opml_loc, args.output_loc, args.ep_cnt, args.metadata)

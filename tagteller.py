@@ -3,7 +3,7 @@
 from mp3_tagger import MP3File, VERSION_1, VERSION_2, VERSION_BOTH
 from pathlib import Path
 
-pathlist = Path("Podcasts").rglob('*.mp3')
+pathlist = Path("dls").rglob('*.mp3')
 for path in pathlist:
     # because path is object not string
     path_in_str = str(path)
@@ -11,5 +11,8 @@ for path in pathlist:
     
     mp3 = MP3File(path_in_str)
     print(path_in_str)
-    print(mp3.get_tags())
+    try:
+        print(mp3.get_tags())
+    except:
+        pass
     print("")  # blank ln plz

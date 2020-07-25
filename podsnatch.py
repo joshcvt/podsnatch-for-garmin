@@ -13,6 +13,11 @@ import os
 
 from pathvalidate import sanitize_filename
 
+#mp3_tagger is unreliable, don't do it
+#from mp3_tagger import MP3File, VERSION_1, VERSION_2, VERSION_BOTH
+
+# longterm: https://github.com/akallabeth/python-mtp to deliver the files directly
+
 TMP_EXT = '.part'
 
 
@@ -131,6 +136,12 @@ def save_podcasts(opml, output, episode_count=None, episode_meta=False):
         download(episode.url, full_path + TMP_EXT, 'wb')
 
         os.rename(full_path + TMP_EXT, full_path)
+        
+        #mp3 = MP3File(full_path)
+        #mp3.set_version(VERSION_BOTH)
+        #mp3.album = show.title
+        #mp3.song = episode.title
+        #mp3.save()
 
         if episode_meta:
           handle = open(full_path + ".txt", "w")

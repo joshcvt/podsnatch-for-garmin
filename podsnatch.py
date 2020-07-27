@@ -15,6 +15,8 @@ from pathvalidate import sanitize_filename
 
 #mp3_tagger is unreliable, don't do it
 #from mp3_tagger import MP3File, VERSION_1, VERSION_2, VERSION_BOTH
+import eyed3
+from eyed3.id3 import ID3_V2_4
 
 # longterm: https://github.com/akallabeth/python-mtp to deliver the files directly
 
@@ -137,11 +139,18 @@ def save_podcasts(opml, output, episode_count=None, episode_meta=False):
 
         os.rename(full_path + TMP_EXT, full_path)
         
-        #mp3 = MP3File(full_path)
-        #mp3.set_version(VERSION_BOTH)
-        #mp3.album = show.title
-        #mp3.song = episode.title
-        #mp3.save()
+        audiofile = eyed3.load(full_path)
+        
+        if audiofile.tag.version != ID3_V2_4:
+          audiofile.tag.version = ID3_V2_4
+        audiofile.tag.album = show.title
+        audiofile.tag.title = episode.title
+        if ((not audiofile.tag.artist) or (len(audiofile.tag.artist) == 0)):
+            audiofile.tag.artist = feed['feed']['author']
+        audiofile.tag.album_artist = feed['feed']['author']
+        audiofile.tag.track_num = None
+        audiofile.tag.genre = 186
+        audiofile.tag.save()
 
         if episode_meta:
           handle = open(full_path + ".txt", "w")

@@ -186,11 +186,11 @@ if __name__ == '__main__':
   parser.add_argument('--output-dir', '-o', dest='output_loc', action='store',
                       required=False, default='.',
                       help='location to save podcasts')
+  parser.add_argument('--flat',action="store_true",help="use flat directory structure")
   parser.add_argument('--number-of-episodes', '-n', dest='ep_cnt',
                       action='store', default=None,
                       help='Download at most the last n episodes in the feed')
-  parser.add_argument('--output-metadata','-m', dest="metadata",type=bool,
-                      required=False, default=False, 
+  parser.add_argument('--metadata',action="store_true", 
                       help="Output .txt metadata file for each episode")
   args = parser.parse_args()
 

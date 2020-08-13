@@ -36,7 +36,7 @@ class Show:
     return f'{self.title}: {self.url}'
 
   def get_dir_name(self):
-    return re.sub(r'[\W]+', '_', self.title)
+    return sanitize_filename(self.title)
 
 
 class Episode:
@@ -105,7 +105,7 @@ total_downloaded = 0
 full_path = ''
 
 
-def save_podcasts(opml, output, episode_count=None, episode_meta=False):
+def save_podcasts(opml, output, episode_count=None, episode_meta=False, use_flat_directory=False):
   global total_downloaded
   global full_path
 
@@ -128,10 +128,8 @@ def save_podcasts(opml, output, episode_count=None, episode_meta=False):
       item = feed.entries[i]
       episode = Episode(item, show)
 
-      print(f'Processing episode {episode.title}')
-
       full_path = os.path.join(show_path, episode.get_file_name())
-      print(full_path)
+      print(f'Processing episode {episode.title} to {full_path}')
 
       if not os.path.exists(full_path) and episode.url:
         print('Downloading episode')
@@ -196,4 +194,4 @@ if __name__ == '__main__':
 
   signal.signal(signal.SIGINT, ctrl_c_handler)
 
-  save_podcasts(args.opml_loc, args.output_loc, args.ep_cnt, args.metadata)
+  save_podcasts(args.opml_loc, args.output_loc, args.ep_cnt, args.metadata, args.flat)

@@ -115,7 +115,10 @@ def save_podcasts(opml, output, episode_count=None, episode_meta=False, use_flat
     print(f'Processing show {show.title}')
     feed = feedparser.parse(show.url)
 
-    show_path = os.path.join(output, show.get_dir_name())
+    if use_flat_directory:
+        show_path = output
+    else:
+        show_path = os.path.join(output, show.get_dir_name())
     os.makedirs(show_path, exist_ok=True)
 
     cnt_eps_to_dl = (int(episode_count, 10)
@@ -128,7 +131,10 @@ def save_podcasts(opml, output, episode_count=None, episode_meta=False, use_flat
       item = feed.entries[i]
       episode = Episode(item, show)
 
-      full_path = os.path.join(show_path, episode.get_file_name())
+      if use_flat_directory:
+        full_path = os.path.join(show_path, show.get_dir_name() + " - " + episode.get_file_name())
+      else:
+        full_path = os.path.join(show_path, episode.get_file_name())
       print(f'Processing episode {episode.title} to {full_path}')
 
       if not os.path.exists(full_path) and episode.url:

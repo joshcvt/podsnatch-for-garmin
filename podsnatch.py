@@ -10,6 +10,7 @@ import time
 import sys
 import re
 import os
+import traceback
 
 from pathvalidate import sanitize_filename
 
@@ -21,6 +22,7 @@ from eyed3.id3 import ID3_V2_4
 # longterm: https://github.com/akallabeth/python-mtp to deliver the files directly
 
 TMP_EXT = '.part'
+RETIRE_FILENAME = 'retired_paths.txt'
 
 
 class Show:
@@ -105,7 +107,7 @@ total_downloaded = 0
 full_path = ''
 
 
-def save_podcasts(opml, output, episode_count=None, episode_meta=False, use_flat_directory=False):
+def save_podcasts(opml, output, episode_count=None, episode_meta=False, use_flat_directory=False, retired_files=[]):
   global total_downloaded
   global full_path
 
@@ -137,7 +139,7 @@ def save_podcasts(opml, output, episode_count=None, episode_meta=False, use_flat
         full_path = os.path.join(show_path, episode.get_file_name())
       print(f'Processing episode {episode.title} to {full_path}')
 
-      if not os.path.exists(full_path) and episode.url:
+      if episode.url and not os.path.exists(full_path) and not (full_path in retired_files):
         print('Downloading episode')
         download(episode.url, full_path + TMP_EXT, 'wb')
 
@@ -172,6 +174,37 @@ def save_podcasts(opml, output, episode_count=None, episode_meta=False, use_flat
     print(f'{total_downloaded} episodes downloaded')
 
 
+def retire_file(path,retire_file_path,do_delete):
+  
+  existing = load_retired(retire_file_path)
+  if path in existing:
+    print("already retired " + path)
+  else:
+    existing.append(path)
+    if not retire_file_path:
+      retire_file_path = RETIRE_FILENAME
+    with open(retire_file_path,"w") as rfl:
+      rfl.writelines(line + '\n' for line in existing)
+  if do_delete:
+    os.unlink(path)
+  return
+
+def load_retired(retire_fn=False):
+  if not retire_fn:
+    retire_fn = RETIRE_FILENAME
+  fns = []
+  try:
+    with open(retire_fn) as rfl:
+      lines = rfl.readlines()
+    for ln in lines:
+      fns.append(ln.strip())
+  except FileNotFoundError:
+    pass
+  except Exception as ex:
+    traceback.print_exc()
+  
+  return fns
+
 def ctrl_c_handler(signum, frame):
   print('Stopping...')
 
@@ -184,9 +217,13 @@ def ctrl_c_handler(signum, frame):
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description='Download podcasts.')
-
-  parser.add_argument('--opml', '-i', dest='opml_loc', action='store',
-                      required=True, help='path to opml file to import')
+  group = parser.add_mutually_exclusive_group(required=True)
+  group.add_argument('--opml', '-i', dest='opml_loc', action='store',
+                      help='path to opml file to import')
+  group.add_argument('--retire','-r',dest='retire',action='store',
+                      help='path to file to retire as listened (so it won\'t be downloaded again) and delete')
+  group.add_argument('--retire_safe','-s',dest='retire_safe',action='store',
+                      help='path to file to retire (but not delete)')
   parser.add_argument('--output-dir', '-o', dest='output_loc', action='store',
                       required=False, default='.',
                       help='location to save podcasts')
@@ -196,8 +233,16 @@ if __name__ == '__main__':
                       help='Download at most the last n episodes in the feed')
   parser.add_argument('--metadata',action="store_true", 
                       help="Output .txt metadata file for each episode")
+  parser.add_argument('--retire_filename',dest="retire_fn",action='store',default=None,
+                      help="Path to textfile containing paths to treat as already downloaded")
   args = parser.parse_args()
 
   signal.signal(signal.SIGINT, ctrl_c_handler)
 
-  save_podcasts(args.opml_loc, args.output_loc, args.ep_cnt, args.metadata, args.flat)
+  if args.retire:
+    retire_file(args.retire,args.retire_fn,True)
+  elif args.retire_safe:
+    retire_file(args.retire_safe,args.retire_fn,False)
+  else:
+    retired_files = load_retired(args.retire_fn)
+    save_podcasts(args.opml_loc, args.output_loc, args.ep_cnt, args.metadata, args.flat, retired_files)

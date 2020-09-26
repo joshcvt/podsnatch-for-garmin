@@ -16,11 +16,9 @@ Once you have the MP3 files, you can copy them to /Podcasts on the Media partiti
 of your watch using Android File Transfer. I'd love to build in MTP eventually to do it 
 automatically, but no promises.
 
---Josh Crockett
-  josh.crockett@gmail.com
-  https://github.com/joshcvt
+--Josh Crockett ([mail](mailto:josh.crockett@gmail.com)/[GH](https://github.com/joshcvt))
 
-<a name="footnote1">1</a>: Only (originally) \~100 lines of Python!
+<a name="footnote1">1</a>: Only (originally) \~100 lines of Python (3)!
 
 <a name="footnote2">2</a>: *Probably*, I've only tested on Mac.
 
@@ -28,23 +26,20 @@ automatically, but no promises.
 ```# First time
 pip install < requirements.txt
 
-# after that, just run this every time
+# To get all episodes of all podcasts into output_dir/podcast_name/podcast_name - episode_title.mp3
 python podsnatch.py --opml <input file> -o <output directory>
 ```
 
 ## Optional parameters: 
 
-`-n 5` downloads only the most recent 5 (or whatever number you change 
+* `-n 5` downloads only the most recent 5 (or whatever number you change 
 it to) episodes.
-`--output-metadata`: If you want text metadata for each episode in a plaintext
-file with the same name as the episode audio, with `.txt` appended, use this once I get 
-that parameter working again. The original version did this 
-automatically, but the Garmin use case didn't have much need for the text files so I 
-disabled it.
+* `--flat` puts downloads into a single flat directory as output_dir/podcast_name - episode_title.mp3
+* `-r output_dir/file.mp3` *retires* a file: deletes it and puts it into `retired_paths.txt` so it won't be re-downloaded. This is how I mark episodes as done.
 
 ## Docker
 
-If you don't want to deal with all the python setup crap (and I don't blame you)
+If you don't want to deal with setting up a Python environment (and I don't blame you)
 the original author says you can build the docker container and run with
 
 ```bash

@@ -67,14 +67,6 @@ class Episode:
 
   def get_file_name(self):
     return sanitize_filename(self.title) + '.' + self.url.split('.')[-1].split('?')[0]
-    # preserving old code below
-    url_tail = self.url.split('/')[-1].split('?')[0]
-    show_title = re.sub(r'[\W]+', '_', self.show.title)
-    ep_title = re.sub(r'[\W]+', '_', self.title)
-    formatted_date = time.strftime('%Y_%m_%d', self.date)
-
-    name_tokens = [formatted_date, self.number, ep_title, url_tail]
-    return '_'.join([s for s in name_tokens if s is not ''])
 
 
 def parse_ompl(ompl_path):

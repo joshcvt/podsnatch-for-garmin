@@ -129,9 +129,12 @@ def save_podcasts(opml, output, episode_count=None, episode_meta=False, use_flat
         full_path = os.path.join(show_path, show.get_dir_name() + " - " + episode.get_file_name())
       else:
         full_path = os.path.join(show_path, episode.get_file_name())
-      print(f'Processing episode {episode.title} to {full_path}')
+      print(f'Processing {full_path}: ',end="")
 
-      if episode.url and not os.path.exists(full_path) and not (full_path in retired_files):
+      if (full_path in retired_files):
+        print('Episode retired.')
+        
+      elif episode.url and not os.path.exists(full_path):
         print('Downloading episode')
         download(episode.url, full_path + TMP_EXT, 'wb')
 
@@ -155,12 +158,11 @@ def save_podcasts(opml, output, episode_count=None, episode_meta=False, use_flat
           handle.write(str(episode))
           handle.close()
 
-        show_downloaded += 1
         total_downloaded += 1
       else:
         print('Episode already downloaded!')
-        show_downloaded += 1
 
+      show_downloaded += 1
       i += 1
 
     print(f'{total_downloaded} episodes downloaded')

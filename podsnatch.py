@@ -14,8 +14,6 @@ import traceback
 
 from pathvalidate import sanitize_filename
 
-#mp3_tagger is unreliable, don't do it
-#from mp3_tagger import MP3File, VERSION_1, VERSION_2, VERSION_BOTH
 import eyed3
 from eyed3.id3 import ID3_V2_4
 
@@ -69,8 +67,8 @@ class Episode:
     return sanitize_filename(self.title) + '.' + self.url.split('.')[-1].split('?')[0]
 
 
-def parse_ompl(ompl_path):
-  tree = xml.parse(ompl_path)
+def parse_opml(opml_path):
+  tree = xml.parse(opml_path)
   root = tree.getroot()
 
   shows = root.findall('./body/outline')
@@ -103,7 +101,7 @@ def save_podcasts(opml, output, episode_count=None, episode_meta=False, use_flat
   global total_downloaded
   global full_path
 
-  shows = parse_ompl(opml)
+  shows = parse_opml(opml)
 
   for show in shows:
     print(f'Processing show {show.title}')

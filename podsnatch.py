@@ -97,7 +97,7 @@ total_downloaded = 0
 full_path = ''
 
 
-def save_podcasts(opml, output, episode_count=None, episode_meta=False, use_flat_directory=False, retired_files=[]):
+def save_podcasts(opml, output, episode_count=None, episode_meta=False, use_flat_directory=False, retired_files=[],dnm=False):
   global total_downloaded
   global full_path
 
@@ -138,18 +138,10 @@ def save_podcasts(opml, output, episode_count=None, episode_meta=False, use_flat
 
         os.rename(full_path + TMP_EXT, full_path)
         
-        audiofile = eyed3.load(full_path)
-        
-        if audiofile.tag.version != ID3_V2_4:
-          audiofile.tag.version = ID3_V2_4
-        audiofile.tag.album = show.title
-        audiofile.tag.title = episode.title
-        if ((not audiofile.tag.artist) or (len(audiofile.tag.artist) == 0)):
-            audiofile.tag.artist = feed['feed']['author']
-        audiofile.tag.album_artist = feed['feed']['author']
-        audiofile.tag.track_num = None
-        audiofile.tag.genre = 186
-        audiofile.tag.save()
+        if not dnm:
+          do_munge(full_path,show.title,episode.title,feed['feed']['author'])
+        else:
+          print("Warning: did not munge " + full_path)
 
         if episode_meta:
           handle = open(full_path + ".txt", "w")
@@ -164,6 +156,23 @@ def save_podcasts(opml, output, episode_count=None, episode_meta=False, use_flat
       i += 1
 
   print(f'{total_downloaded} episodes downloaded')
+
+
+def do_munge(full_path,show_title,episode_title,feed_author):
+
+  audiofile = eyed3.load(full_path)
+
+  if audiofile.tag.version != ID3_V2_4:
+    audiofile.tag.version = ID3_V2_4
+  audiofile.tag.album = show_title
+  audiofile.tag.title = episode_title
+  if ((not audiofile.tag.artist) or (len(audiofile.tag.artist) == 0)):
+      audiofile.tag.artist = feed_author
+  audiofile.tag.album_artist = feed_author
+  audiofile.tag.track_num = None
+  audiofile.tag.genre = 186
+  audiofile.tag.save()
+
 
 
 def retire_file(path,retire_file_path,do_delete):
@@ -228,6 +237,7 @@ if __name__ == '__main__':
   parser.add_argument('--retire_filename',dest="retire_fn",action='store',default=None,
                       help="Path to textfile containing paths to treat as already downloaded")
   parser.add_argument('--open_if_new','-ifn',action="store_true",required=False,help="open the output directory in Finder if there were new episodes")
+  parser.add_argument('--dnm',action="store_true",required=False,help="do not munge the tags (i.e. get files for debugging)")
   args = parser.parse_args()
 
   signal.signal(signal.SIGINT, ctrl_c_handler)
@@ -238,7 +248,7 @@ if __name__ == '__main__':
     retire_file(args.retire_safe,args.retire_fn,False)
   else:
     retired_files = load_retired(args.retire_fn)
-    save_podcasts(args.opml_loc, args.output_loc, args.ep_cnt, args.metadata, args.flat, retired_files)
+    save_podcasts(args.opml_loc, args.output_loc, args.ep_cnt, args.metadata, args.flat, retired_files, args.dnm)
     
   if total_downloaded > 0 and args.open_if_new and args.output_loc:
     os.system("open " + args.output_loc)

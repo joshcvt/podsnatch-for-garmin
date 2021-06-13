@@ -6,7 +6,7 @@ import eyed3
 import traceback
 
 # https://stackoverflow.com/questions/10377998/how-can-i-iterate-over-files-in-a-given-directory
-pathlist = Path("whatsup").rglob('*.mp3')
+pathlist = Path("dls/debug/").rglob('*.mp3')
 for path in pathlist:
     # because path is object not string
     path_in_str = str(path)

@@ -163,7 +163,7 @@ def save_podcasts(opml, output, episode_count=None, episode_meta=False, use_flat
       show_downloaded += 1
       i += 1
 
-    print(f'{total_downloaded} episodes downloaded')
+  print(f'{total_downloaded} episodes downloaded')
 
 
 def retire_file(path,retire_file_path,do_delete):
@@ -227,6 +227,7 @@ if __name__ == '__main__':
                       help="Output .txt metadata file for each episode")
   parser.add_argument('--retire_filename',dest="retire_fn",action='store',default=None,
                       help="Path to textfile containing paths to treat as already downloaded")
+  parser.add_argument('--open_if_new','-ifn',action="store_true",required=False,help="open the output directory in Finder if there were new episodes")
   args = parser.parse_args()
 
   signal.signal(signal.SIGINT, ctrl_c_handler)
@@ -238,3 +239,6 @@ if __name__ == '__main__':
   else:
     retired_files = load_retired(args.retire_fn)
     save_podcasts(args.opml_loc, args.output_loc, args.ep_cnt, args.metadata, args.flat, retired_files)
+    
+  if total_downloaded > 0 and args.open_if_new and args.output_loc:
+    os.system("open " + args.output_loc)

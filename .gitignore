@@ -1,3 +1,6 @@
 .python-version
 *.opml
+dls/
+retired_paths.txt
+*.xml
 

@@ -167,12 +167,23 @@ def do_munge(full_path,show_title,episode_title,feed_author):
   audiofile.tag.album = show_title
   audiofile.tag.title = episode_title
   if ((not audiofile.tag.artist) or (len(audiofile.tag.artist) == 0)):
-      audiofile.tag.artist = feed_author
+    audiofile.tag.artist = feed_author
   audiofile.tag.album_artist = feed_author
   audiofile.tag.track_num = None
   audiofile.tag.genre = 186
-  audiofile.tag.save()
-
+  try:
+    audiofile.tag.save()
+  except UnicodeEncodeError:
+    # this generally happens when eyeD3 thinks everything has to be latin-1 for some reason. so force the tags and resave.
+    print("Forcing text tags to latin-1")
+    audiofile.tag.album = audiofile.tag.album.encode("latin-1","ignore")
+    audiofile.tag.title = audiofile.tag.title.encode("latin-1","ignore")
+    audiofile.tag.artist = audiofile.tag.artist.encode("latin-1","ignore")
+    audiofile.tag.album_artist = audiofile.tag.album_artist.encode("latin-1","ignore")
+    try:
+      audiofile.tag.save()
+    except:
+      print("Second save failed, stuck with original tags")
 
 
 def retire_file(path,retire_file_path,do_delete):

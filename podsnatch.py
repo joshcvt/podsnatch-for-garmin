@@ -162,6 +162,10 @@ def do_munge(full_path,show_title,episode_title,feed_author):
 
   audiofile = eyed3.load(full_path)
 
+  if not audiofile.tag:
+    audiofile.tag = eyed3.id3.Tag()
+    audiofile.tag.version = ID3_V2_4
+
   if audiofile.tag.version != ID3_V2_4:
     audiofile.tag.version = ID3_V2_4
   audiofile.tag.album = show_title

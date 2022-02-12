@@ -160,7 +160,14 @@ def save_podcasts(opml, output, episode_count=None, episode_meta=False, use_flat
 
 def do_munge(full_path,show_title,episode_title,feed_author):
 
-  audiofile = eyed3.load(full_path)
+  try:
+    audiofile = eyed3.load(full_path)
+  except:
+    print("EyeD3 load exception on: " + full_path)
+    return
+  if not audiofile:
+    print("EyeD3 returned null loading: " + full_path)
+    return
 
   if not audiofile.tag:
     audiofile.tag = eyed3.id3.Tag()

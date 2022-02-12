@@ -1,7 +1,7 @@
 # PodSnatch for Garmin
 
-PodSnatch is a simple<sup>[1](#footnote1)</sup>, cross-platform
-<sup>[2](#footnote2)</sup> podcast downloader that pulls MP3 files and prepares them to appear
+PodSnatch is a simple, cross-platform
+<sup>[1](#footnote2)</sup> podcast downloader that pulls MP3 files and prepares them to appear
 sanely on a Garmin watch.  Mac users cannot count on this in Catalina or after
 (even when Garmin's services are working) due to Apple exploding iTunes and replacing the
 podcasts element with a half-baked, iOS-derived app that strips *all* metadata from the
@@ -18,9 +18,7 @@ automatically, but no promises.
 
 --Josh Crockett ([mail](mailto:josh.crockett@gmail.com)/[GH](https://github.com/joshcvt))
 
-<a name="footnote1">1</a>: Only (originally) \~100 lines of Python (3)!
-
-<a name="footnote2">2</a>: *Probably*, I've only tested on Mac.
+<a name="footnote2">1</a>: *Probably*, I've only tested on Mac.
 
 ## Usage
 ```# First time

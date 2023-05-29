@@ -4,3 +4,5 @@ dls/
 retired_paths.txt
 *.xml
 
+.DS_Store
+.venv

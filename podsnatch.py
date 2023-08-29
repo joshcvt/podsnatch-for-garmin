@@ -117,9 +117,11 @@ def save_podcasts(opml, output, episode_count=None, episode_meta=False, use_flat
                      if episode_count is not None
                      else len(feed.entries))
 
-    i = 0
+    i = (cnt_eps_to_dl if len(feed.entries) > cnt_eps_to_dl else len(feed.entries))
     show_downloaded = 0
-    while show_downloaded < cnt_eps_to_dl and i < len(feed.entries):
+    
+    while i > 0:
+      i -= 1
       item = feed.entries[i]
       episode = Episode(item, show)
 
@@ -153,7 +155,6 @@ def save_podcasts(opml, output, episode_count=None, episode_meta=False, use_flat
         print('Episode already downloaded!')
 
       show_downloaded += 1
-      i += 1
 
   print(f'{total_downloaded} episodes downloaded')
 

@@ -13,4 +13,4 @@ requests>=2.31.0,==2.31.*
 sgmllib3k==1.0.0
 six==1.15.0
 tqdm==4.39.0
-urllib3==1.26.5
+urllib3==1.26.17
